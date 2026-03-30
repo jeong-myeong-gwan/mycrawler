@@ -50,7 +50,6 @@ public class HttpFetcher {
      * GET 요청
      */
     public FetchResult fetch(String url, String userAgent, int timeoutMs) {
-
         OkHttpClient customClient = client.newBuilder()
                 .connectTimeout(timeoutMs, TimeUnit.MILLISECONDS)
                 .readTimeout(timeoutMs, TimeUnit.MILLISECONDS)
@@ -63,27 +62,24 @@ public class HttpFetcher {
         Request request = new Request.Builder()
                 .url(url)
                 .get()
-                .addHeader("User-Agent", userAgent)
-                //.addHeader("Accept-Encoding", "gzip")
+                .header("User-Agent", userAgent)
                 .build();
 
         try (Response response = customClient.newCall(request).execute()) {
             result.status = response.code();
 
-            if (response.body() != null) {
+            var responseBody = response.body();
+            if (responseBody != null) {
+                MediaType contentType = responseBody.contentType();
 
-			    byte[] bytes = response.body().bytes();
-			
-			    MediaType contentType = response.body().contentType();
-			
-			    Charset charset = StandardCharsets.UTF_8;
-			
-			    if (contentType != null && contentType.charset() != null) {
-			        charset = contentType.charset();
-			    }
-			
-			    result.body = new String(bytes, charset);
-			}
+                Charset charset = StandardCharsets.UTF_8;
+                if (contentType != null && contentType.charset() != null) {
+                    charset = contentType.charset();
+                }
+
+                byte[] bytes = responseBody.bytes();
+                result.body = new String(bytes, charset);
+            }
 
         } catch (Exception e) {
             result.error = e.getMessage();
