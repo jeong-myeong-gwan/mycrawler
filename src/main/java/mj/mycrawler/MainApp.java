@@ -21,21 +21,21 @@ public class MainApp {
         AnnotationConfigApplicationContext ctx = null;
 
         try {
-            // 1️⃣ Spring Context 초기화
+            // Spring Context 초기화
             ctx = new AnnotationConfigApplicationContext(AppConfig.class);
 
-            // 2️⃣ Scheduler Bean 가져오기
+            // Scheduler Bean 가져오기
             CrawlScheduler scheduler = ctx.getBean(CrawlScheduler.class);
 
-            // 3️⃣ Scheduler 시작
+            // Scheduler 시작
             scheduler.start();
 
             log.info("Crawler Scheduler started.");
 
-            // 4️⃣ JVM 종료 방지 (메인 쓰레드 대기)
+            // JVM 종료 방지 (메인 쓰레드 대기)
             CountDownLatch latch = new CountDownLatch(1);
 
-            // 5️⃣ 종료 Hook 등록
+            // 종료 Hook 등록
             AnnotationConfigApplicationContext finalCtx = ctx;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 log.info("Shutdown signal received.");
@@ -56,7 +56,7 @@ public class MainApp {
                 latch.countDown();
             }));
 
-            // 6️⃣ 메인 쓰레드 block
+            // 메인 쓰레드 block
             log.info("Crawler is running... (Press Ctrl+C to stop)");
             latch.await();
 
